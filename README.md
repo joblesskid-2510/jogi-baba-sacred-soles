@@ -1,4 +1,4 @@
-# ॐ Jogi Baba — Sacred Soles
+# Jogi Baba — Sacred Soles
 **"Where the Sacred Meets the Street"**
 
 A high-concept, luxury e-commerce landing page for a performance footwear brand. This project explores the intersection of ancient Indian sacred geometry and modern athletic technology.
