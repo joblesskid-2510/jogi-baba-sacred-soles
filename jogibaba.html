@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JOGI BABA — Sacred Soles</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --saffron:#FF6B00;
+  --saffron-light:#FF9A3C;
+  --saffron-pale:#FFE4C4;
+  --indigo:#1A0A4A;
+  --indigo-mid:#2D1875;
+  --indigo-light:#4A2CB8;
+  --gold:#D4A017;
+  --gold-light:#F0C94A;
+  --cream:#FFF8F0;
+  --charcoal:#0D0812;
+  --rose:#C0392B;
+  --teal:#00A896;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{
+  background:var(--charcoal);
+  color:var(--cream);
+  font-family:'Cormorant Garamond',serif;
+  overflow-x:hidden;
+  cursor:none;
+}
+
+/* ── CURSOR ── */
+.cur{width:10px;height:10px;background:var(--saffron);border-radius:50%;position:fixed;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s;mix-blend-mode:difference}
+.cur-ring{width:40px;height:40px;border:1.5px solid rgba(255,107,0,.5);border-radius:50%;position:fixed;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:left .08s ease,top .08s ease}
+.cur.big{transform:translate(-50%,-50%) scale(4);background:rgba(255,107,0,.15);border:1px solid var(--saffron)}
+
+/* ── CANVAS ── */
+#bgCanvas{position:fixed;inset:0;z-index:0;opacity:.55;pointer-events:none}
+
+/* ── LOADER ── */
+#loader{
+  position:fixed;inset:0;z-index:9990;
+  background:var(--charcoal);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1.5rem;
+  transition:opacity .8s ease, transform .8s ease;
+}
+#loader.gone{opacity:0;pointer-events:none;transform:scale(1.05)}
+.loader-logo{
+  font-family:'Cinzel Decorative',serif;
+  font-size:3rem;color:var(--saffron);
+  letter-spacing:.15em;
+  animation:pulseGlow 1.5s ease-in-out infinite;
+}
+.loader-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1rem;color:rgba(255,248,240,.4);letter-spacing:.4em;text-transform:uppercase}
+.loader-bar-wrap{width:220px;height:1px;background:rgba(255,107,0,.15);position:relative;overflow:hidden}
+.loader-bar{height:100%;width:0%;background:var(--saffron);animation:loadBar 2.2s ease forwards}
+@keyframes loadBar{to{width:100%}}
+@keyframes pulseGlow{0%,100%{text-shadow:0 0 20px rgba(255,107,0,.4)}50%{text-shadow:0 0 60px rgba(255,107,0,.9)}}
+/* Spinning mandala on loader */
+.loader-mandala{width:80px;height:80px;animation:spin 8s linear infinite;opacity:.4}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.5rem 4rem;
+  transition:background .4s;
+}
+nav.scrolled{background:rgba(13,8,18,.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,107,0,.1)}
+.nav-logo{
+  font-family:'Cinzel Decorative',serif;
+  font-size:1.4rem;letter-spacing:.12em;color:var(--cream);text-decoration:none;
+  display:flex;flex-direction:column;line-height:1;
+}
+.nav-logo span{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.65rem;letter-spacing:.4em;text-transform:uppercase;color:var(--saffron);margin-top:.2rem}
+.nav-links{display:flex;gap:3rem;list-style:none}
+.nav-links a{font-family:'Teko',sans-serif;font-size:1rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,248,240,.55);text-decoration:none;transition:color .2s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-3px;left:0;right:0;height:1px;background:var(--saffron);transform:scaleX(0);transition:transform .3s;transform-origin:left}
+.nav-links a:hover{color:var(--cream)}
+.nav-links a:hover::after{transform:scaleX(1)}
+.nav-cart{
+  width:42px;height:42px;border:1px solid rgba(255,107,0,.4);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--saffron);font-size:1rem;
+  transition:background .2s,border-color .2s;
+  position:relative;
+}
+.nav-cart:hover{background:rgba(255,107,0,.1);border-color:var(--saffron)}
+.cart-badge{
+  position:absolute;top:-6px;right:-6px;
+  width:16px;height:16px;background:var(--saffron);
+  border-radius:50%;font-family:'Teko',sans-serif;font-size:.65rem;
+  display:flex;align-items:center;justify-content:center;color:var(--charcoal);
+}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;position:relative;z-index:1;
+  display:grid;grid-template-columns:1fr 1fr;
+  overflow:hidden;
+}
+.hero-left{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:10rem 4rem 6rem;
+  position:relative;z-index:2;
+}
+.hero-eyebrow{
+  font-family:'Teko',sans-serif;font-size:.85rem;letter-spacing:.5em;text-transform:uppercase;
+  color:var(--saffron);margin-bottom:1.5rem;
+  display:flex;align-items:center;gap:1rem;opacity:0;
+  animation:fadeUp .8s .4s ease forwards;
+}
+.hero-eyebrow::before{content:'ॐ';font-size:1.2rem;color:var(--gold)}
+.hero-h1{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(3.2rem,6vw,6rem);
+  line-height:.92;letter-spacing:-.01em;
+  margin-bottom:1.2rem;
+  opacity:0;animation:fadeUp .9s .55s ease forwards;
+}
+.hero-h1 .jogi{color:var(--cream);display:block}
+.hero-h1 .baba{color:var(--saffron);display:block;text-shadow:0 0 60px rgba(255,107,0,.4)}
+.hero-h1 .tagline{
+  font-family:'Cormorant Garamond',serif;font-weight:300;
+  font-style:italic;font-size:clamp(1rem,2vw,1.4rem);
+  color:rgba(255,248,240,.45);display:block;
+  letter-spacing:.1em;margin-top:.6rem;
+}
+.hero-desc{
+  font-size:1.05rem;line-height:1.8;
+  color:rgba(255,248,240,.5);
+  max-width:380px;margin-bottom:3rem;
+  opacity:0;animation:fadeUp .9s .7s ease forwards;
+}
+.hero-btns{
+  display:flex;gap:1.5rem;align-items:center;
+  opacity:0;animation:fadeUp .9s .85s ease forwards;
+}
+.btn-saffron{
+  background:var(--saffron);color:var(--charcoal);
+  font-family:'Teko',sans-serif;font-size:1rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:1rem 2.5rem;text-decoration:none;
+  transition:transform .2s,box-shadow .2s,background .2s;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.btn-saffron:hover{background:var(--saffron-light);transform:translateY(-3px);box-shadow:0 20px 50px rgba(255,107,0,.35)}
+.btn-outline{
+  font-family:'Teko',sans-serif;font-size:.85rem;letter-spacing:.25em;text-transform:uppercase;
+  color:rgba(255,248,240,.55);text-decoration:none;
+  display:flex;align-items:center;gap:.6rem;transition:color .2s;
+}
+.btn-outline:hover{color:var(--cream)}
+.btn-outline::after{content:'→';transition:transform .2s}
+.btn-outline:hover::after{transform:translateX(4px)}
+
+/* Hero stats strip */
+.hero-stats{
+  display:flex;gap:0;margin-top:3.5rem;
+  border-top:1px solid rgba(255,107,0,.12);padding-top:2rem;
+  opacity:0;animation:fadeUp .9s 1s ease forwards;
+}
+.hstat{padding-right:2.5rem;margin-right:2.5rem;border-right:1px solid rgba(255,107,0,.12)}
+.hstat:last-child{border-right:none}
+.hstat-num{font-family:'Cinzel Decorative',serif;font-size:2rem;color:var(--saffron);line-height:1}
+.hstat-lbl{font-family:'Teko',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,248,240,.35);margin-top:.2rem}
+
+/* Hero right */
+.hero-right{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.hero-shoe-stage{
+  position:relative;z-index:2;width:90%;
+  animation:heroShoeFloat 5s ease-in-out infinite;
+}
+@keyframes heroShoeFloat{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-22px) rotate(-6deg)}}
+.hero-glow{
+  position:absolute;width:500px;height:500px;
+  background:radial-gradient(circle,rgba(255,107,0,.25) 0%,transparent 70%);
+  border-radius:50%;pointer-events:none;z-index:1;
+  animation:glowPulse 4s ease-in-out infinite;
+}
+@keyframes glowPulse{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.2);opacity:1}}
+
+/* Mandala decoration */
+.mandala-bg{
+  position:absolute;right:-120px;top:50%;transform:translateY(-50%);
+  width:700px;height:700px;opacity:.06;
+  animation:spin 60s linear infinite;pointer-events:none;z-index:1;
+}
+.hero-particles{position:absolute;inset:0;z-index:0;pointer-events:none}
+
+/* Scroll cue */
+.scroll-cue{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  z-index:5;display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.3em;text-transform:uppercase;
+  color:rgba(255,248,240,.3);animation:fadeUp 1s 1.4s ease forwards;opacity:0;
+}
+.scroll-line{width:1px;height:50px;background:linear-gradient(to bottom,var(--saffron),transparent);animation:scrollPulse 1.8s ease-in-out infinite}
+@keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TICKER ── */
+.ticker-wrap{border-top:1px solid rgba(255,107,0,.15);border-bottom:1px solid rgba(255,107,0,.15);overflow:hidden;padding:.75rem 0;position:relative;z-index:2;background:rgba(255,107,0,.04)}
+.ticker{display:flex;white-space:nowrap;animation:tickerAnim 25s linear infinite}
+.t-item{font-family:'Teko',sans-serif;font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,248,240,.35);padding:0 3rem;display:flex;align-items:center;gap:2rem}
+.t-item .om{color:var(--saffron);font-size:1.2rem;line-height:1}
+@keyframes tickerAnim{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* ── SECTION BASE ── */
+section{position:relative;z-index:1}
+.sec-label{font-family:'Teko',sans-serif;font-size:.75rem;letter-spacing:.4em;text-transform:uppercase;color:var(--saffron);display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem}
+.sec-label::before{content:'';width:2rem;height:1px;background:var(--saffron)}
+.sec-title{font-family:'Cinzel Decorative',serif;font-size:clamp(2.5rem,5vw,4.5rem);line-height:.95;letter-spacing:-.01em}
+
+/* ── FEATURED ── */
+.featured{
+  padding:8rem 4rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:center;
+  border-bottom:1px solid rgba(255,107,0,.08);
+}
+.feat-visual{
+  position:relative;aspect-ratio:1;
+  background:linear-gradient(135deg,rgba(26,10,74,.8),rgba(13,8,18,1));
+  overflow:hidden;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,107,0,.1);
+}
+.feat-visual::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.12),transparent 65%);
+  pointer-events:none;
+}
+.feat-badge{
+  position:absolute;top:1.5rem;left:1.5rem;
+  background:var(--saffron);color:var(--charcoal);
+  font-family:'Teko',sans-serif;font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;
+  padding:.35rem 1rem;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.feat-shoe{width:88%;animation:heroShoeFloat 4s ease-in-out infinite}
+.feat-mandala-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.07;pointer-events:none;animation:spin 30s linear infinite}
+
+.feat-info{}
+.feat-name{font-family:'Cinzel Decorative',serif;font-size:clamp(2.5rem,4vw,4rem);line-height:.9;margin:1rem 0}
+.feat-name em{font-style:normal;color:var(--saffron)}
+.feat-sub{font-size:1.05rem;line-height:1.8;color:rgba(255,248,240,.45);max-width:370px;margin-bottom:2rem}
+.feat-price{font-family:'Cinzel Decorative',serif;font-size:3rem;color:var(--gold-light);margin-bottom:2rem;display:flex;align-items:baseline;gap:.5rem}
+.feat-price .cur-sym{font-size:1.4rem;color:rgba(255,248,240,.4)}
+.feat-price .mrp{font-size:1.1rem;color:var(--muted,#666);text-decoration:line-through;font-family:'Cormorant Garamond',serif}
+.feat-price .save{font-family:'Teko',sans-serif;font-size:.9rem;letter-spacing:.15em;color:var(--teal);background:rgba(0,168,150,.1);padding:.2rem .7rem}
+/* Sizes */
+.size-wrap{margin-bottom:2rem}
+.size-lbl{font-family:'Teko',sans-serif;font-size:.7rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,248,240,.35);margin-bottom:.75rem}
+.sizes{display:flex;gap:.5rem;flex-wrap:wrap}
+.sz{
+  width:44px;height:44px;border:1px solid rgba(255,107,0,.2);background:transparent;
+  color:rgba(255,248,240,.45);font-family:'Teko',sans-serif;font-size:1rem;
+  cursor:none;transition:all .2s;display:flex;align-items:center;justify-content:center;
+}
+.sz:hover,.sz.on{border-color:var(--saffron);color:var(--cream);background:rgba(255,107,0,.12)}
+/* Action btns */
+.feat-actions{display:flex;gap:.75rem;align-items:center}
+.btn-add{
+  background:var(--cream);color:var(--charcoal);
+  font-family:'Teko',sans-serif;font-size:1rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:1rem 2.5rem;border:none;cursor:none;
+  transition:background .2s,transform .2s;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+.btn-add:hover{background:var(--saffron);color:var(--charcoal);transform:translateY(-2px)}
+.btn-wish{
+  width:48px;height:48px;border:1px solid rgba(255,107,0,.25);background:transparent;
+  color:rgba(255,248,240,.35);font-size:1.2rem;cursor:none;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;
+}
+.btn-wish:hover{border-color:var(--saffron);color:var(--saffron);background:rgba(255,107,0,.08)}
+/* Specs row */
+.specs-row{display:flex;gap:0;margin-top:2rem;border-top:1px solid rgba(255,107,0,.1);padding-top:1.5rem}
+.spec{padding-right:2rem;margin-right:2rem;border-right:1px solid rgba(255,107,0,.1);text-align:center}
+.spec:last-child{border:none}
+.spec-val{font-family:'Cinzel Decorative',serif;font-size:1.2rem;color:var(--saffron)}
+.spec-key{font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,248,240,.3)}
+
+/* ── PRODUCT GRID ── */
+.products{padding:7rem 4rem;border-bottom:1px solid rgba(255,107,0,.08)}
+.prod-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:4rem}
+.see-all{font-family:'Teko',sans-serif;font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;color:var(--saffron);text-decoration:none;display:flex;align-items:center;gap:.5rem;transition:gap .2s}
+.see-all:hover{gap:.9rem}
+.see-all::after{content:'→'}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+
+/* Product card */
+.pcard{background:#100b1a;border:1px solid rgba(255,107,0,.08);overflow:hidden;position:relative;transition:transform .35s,border-color .35s}
+.pcard:hover{transform:translateY(-8px);border-color:rgba(255,107,0,.3)}
+.pcard-vis{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;overflow:hidden}
+.pcard-vis::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 60%,rgba(255,107,0,.07),transparent 70%);pointer-events:none}
+.pcard-shoe{width:86%;transition:transform .5s ease}
+.pcard:hover .pcard-shoe{transform:scale(1.06) rotate(-5deg)}
+.ptag{position:absolute;top:1rem;right:1rem;font-family:'Teko',sans-serif;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;padding:.3rem .8rem;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+.ptag-new{background:var(--teal);color:var(--charcoal)}
+.ptag-hot{background:var(--saffron);color:var(--charcoal)}
+.ptag-sale{background:var(--gold);color:var(--charcoal)}
+.pcard-body{padding:1.25rem 1.5rem 1.5rem}
+.pcard-cat{font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,248,240,.3);margin-bottom:.35rem}
+.pcard-name{font-family:'Cinzel Decorative',serif;font-size:1.1rem;letter-spacing:.02em;margin-bottom:.75rem;line-height:1.2}
+.pcard-colors{display:flex;gap:.4rem;margin-bottom:.75rem}
+.sw{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.12);cursor:none;transition:transform .15s}
+.sw:hover{transform:scale(1.4)}
+.pcard-foot{display:flex;justify-content:space-between;align-items:center}
+.pcard-price{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:600;color:var(--gold-light)}
+.pcard-price .oldp{font-size:.85rem;color:rgba(255,248,240,.3);text-decoration:line-through;margin-right:.3rem}
+.pcard-add{
+  width:38px;height:38px;background:var(--saffron);color:var(--charcoal);
+  border:none;cursor:none;font-size:1.1rem;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s,transform .2s;
+  clip-path:polygon(4px 0%,100% 0%,calc(100% - 4px) 100%,0% 100%);
+}
+.pcard-add:hover{background:var(--saffron-light);transform:scale(1.1)}
+
+/* ── CATEGORIES ── */
+.cats{padding:6rem 4rem;border-bottom:1px solid rgba(255,107,0,.08)}
+.cats-grid{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:1.5rem;margin-top:3.5rem;min-height:480px}
+.ccard{
+  background:#100b1a;border:1px solid rgba(255,107,0,.08);
+  position:relative;overflow:hidden;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:2rem;cursor:none;
+  transition:border-color .3s;
+}
+.ccard:hover{border-color:rgba(255,107,0,.35)}
+.ccard.big{grid-row:span 2}
+.ccard-glow{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.06),transparent 70%);opacity:0;transition:opacity .4s;pointer-events:none}
+.ccard:hover .ccard-glow{opacity:1}
+.ccard-art{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:.08;pointer-events:none}
+.ccard-art svg{width:75%}
+.ccard-label{font-family:'Cinzel Decorative',serif;font-size:1.5rem;letter-spacing:.04em;position:relative;z-index:2}
+.ccard-count{font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,248,240,.3);margin-top:.25rem;position:relative;z-index:2}
+.ccard-arrow{position:absolute;top:1.5rem;right:1.5rem;color:var(--saffron);font-size:1.2rem;opacity:0;transition:opacity .2s,transform .2s;z-index:2}
+.ccard:hover .ccard-arrow{opacity:1;transform:translate(3px,-3px)}
+/* Category number watermark */
+.ccard-num{position:absolute;bottom:-1rem;right:-.5rem;font-family:'Cinzel Decorative',serif;font-size:6rem;color:rgba(255,107,0,.04);line-height:1;pointer-events:none;z-index:1}
+
+/* ── PHILOSOPHY STRIP ── */
+.philosophy{
+  padding:7rem 4rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
+  border-bottom:1px solid rgba(255,107,0,.08);
+  background:linear-gradient(135deg,rgba(26,10,74,.2),transparent);
+}
+.phil-visual{position:relative;display:flex;align-items:center;justify-content:center}
+.phil-mandala-wrap{
+  width:420px;height:420px;
+  border:1px solid rgba(255,107,0,.12);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  animation:spin 40s linear infinite;
+}
+.phil-mandala-inner{
+  width:300px;height:300px;
+  border:1px solid rgba(212,160,23,.1);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  animation:spin 20s linear infinite reverse;
+}
+.phil-center{
+  width:160px;height:160px;
+  background:radial-gradient(circle,rgba(255,107,0,.15),rgba(26,10,74,.5));
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  border:1px solid rgba(255,107,0,.3);
+  font-family:'Cinzel Decorative',serif;font-size:2.5rem;color:var(--saffron);
+  animation:spin 15s linear infinite;
+}
+.phil-dots{position:absolute;inset:0;pointer-events:none}
+.phil-text{}
+.phil-quote{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(1.4rem,2.5vw,2rem);line-height:1.5;
+  color:rgba(255,248,240,.8);margin:1.5rem 0 2rem;font-weight:300;
+}
+.phil-body{font-size:1rem;line-height:1.85;color:rgba(255,248,240,.45);margin-bottom:2rem}
+
+/* ── FEATURES STRIP ── */
+.feats-strip{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  background:rgba(26,10,74,.3);border-top:1px solid rgba(255,107,0,.08);border-bottom:1px solid rgba(255,107,0,.08);
+}
+.ft{
+  padding:2.5rem 2rem;border-right:1px solid rgba(255,107,0,.08);
+  transition:background .3s;
+}
+.ft:last-child{border-right:none}
+.ft:hover{background:rgba(255,107,0,.05)}
+.ft-icon{
+  width:44px;height:44px;border:1px solid rgba(255,107,0,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;margin-bottom:1rem;color:var(--saffron);
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.ft-title{font-family:'Teko',sans-serif;font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;margin-bottom:.3rem}
+.ft-sub{font-size:.85rem;color:rgba(255,248,240,.35);line-height:1.5}
+
+/* ── TESTIMONIAL ── */
+.testim{
+  padding:8rem 4rem;
+  display:grid;grid-template-columns:1fr 1.2fr;gap:5rem;align-items:center;
+  border-bottom:1px solid rgba(255,107,0,.08);
+}
+.testim-text{}
+.testim-om{font-size:5rem;line-height:.8;color:var(--saffron);opacity:.4;font-family:'Cormorant Garamond',serif;margin-bottom:.5rem}
+.testim-quote{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(1.2rem,2.2vw,1.7rem);line-height:1.6;margin-bottom:2rem;font-weight:300}
+.testim-author strong{font-family:'Teko',sans-serif;font-size:1rem;letter-spacing:.15em;text-transform:uppercase;color:var(--saffron);display:block}
+.testim-author span{font-family:'Cormorant Garamond',serif;font-size:.9rem;color:rgba(255,248,240,.35);font-style:italic}
+.testim-stars{display:flex;gap:.2rem;margin-bottom:1.5rem;color:var(--gold)}
+
+.testim-visual{
+  position:relative;
+  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:.75rem;
+  height:480px;
+}
+.tv-block{background:#100b1a;border:1px solid rgba(255,107,0,.08);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.tv-block.tall{grid-row:span 2}
+.tv-block svg{width:80%;opacity:.7}
+.tv-block::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(255,107,0,.05),transparent 70%)}
+
+/* ── NEWSLETTER ── */
+.newsletter{
+  padding:6rem 4rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:center;
+  background:linear-gradient(135deg,rgba(26,10,74,.4),rgba(13,8,18,1));
+  border-bottom:1px solid rgba(255,107,0,.08);
+}
+.nl-form{display:flex;gap:0;margin-top:2rem}
+.nl-input{
+  flex:1;background:rgba(255,248,240,.04);border:1px solid rgba(255,107,0,.2);border-right:none;
+  color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:1rem;padding:.9rem 1.25rem;
+  outline:none;transition:border-color .2s;
+}
+.nl-input:focus{border-color:var(--saffron)}
+.nl-input::placeholder{color:rgba(255,248,240,.2);font-style:italic}
+.nl-btn{
+  background:var(--saffron);border:none;color:var(--charcoal);
+  font-family:'Teko',sans-serif;font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.9rem 1.75rem;cursor:none;transition:background .2s;white-space:nowrap;
+}
+.nl-btn:hover{background:var(--saffron-light)}
+.nl-perks{display:flex;flex-direction:column;gap:.75rem;margin-top:2rem}
+.perk{display:flex;align-items:center;gap:.75rem;font-size:.9rem;color:rgba(255,248,240,.4)}
+.perk::before{content:'✦';color:var(--saffron);font-size:.75rem}
+
+/* ── FOOTER ── */
+footer{padding:5rem 4rem 2rem;display:grid;grid-template-columns:2.5fr 1fr 1fr 1fr;gap:3rem;border-top:1px solid rgba(255,107,0,.1)}
+.footer-brand{}
+.footer-logo{font-family:'Cinzel Decorative',serif;font-size:1.8rem;color:var(--cream);display:block;margin-bottom:.35rem}
+.footer-logo span{color:var(--saffron)}
+.footer-tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.85rem;color:rgba(255,248,240,.3);letter-spacing:.3em;text-transform:uppercase;margin-bottom:1.25rem}
+.footer-about{font-size:.9rem;line-height:1.75;color:rgba(255,248,240,.35);max-width:280px}
+.footer-col-title{font-family:'Teko',sans-serif;font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--saffron);margin-bottom:1.25rem}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:.6rem}
+.footer-col a{font-family:'Cormorant Garamond',serif;font-size:.95rem;color:rgba(255,248,240,.35);text-decoration:none;transition:color .2s}
+.footer-col a:hover{color:var(--saffron)}
+.footer-bottom{border-top:1px solid rgba(255,107,0,.08);padding:1.5rem 4rem;display:flex;justify-content:space-between;align-items:center}
+.footer-bottom p{font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,248,240,.2)}
+.footer-om{font-size:1.5rem;color:rgba(255,107,0,.25);letter-spacing:.2em}
+
+/* ── TOAST ── */
+#toast{
+  position:fixed;bottom:2.5rem;right:2.5rem;z-index:9000;
+  background:var(--cream);color:var(--charcoal);
+  font-family:'Teko',sans-serif;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.9rem 1.75rem;
+  border-left:3px solid var(--saffron);
+  opacity:0;transform:translateY(20px);
+  transition:opacity .3s,transform .3s;pointer-events:none;
+  clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);
+}
+
+/* ── REVEAL ── */
+.rv{opacity:0;transform:translateY(35px);transition:opacity .8s ease,transform .8s ease}
+.rv.vis{opacity:1;transform:translateY(0)}
+.rv.d1{transition-delay:.1s}.rv.d2{transition-delay:.2s}.rv.d3{transition-delay:.3s}.rv.d4{transition-delay:.4s}
+
+/* ── HORIZONTAL SCROLL ── */
+.hscroll-wrap{overflow-x:auto;padding-bottom:1rem;scrollbar-width:thin;scrollbar-color:rgba(255,107,0,.3) transparent}
+.hscroll-wrap::-webkit-scrollbar{height:2px}
+.hscroll-wrap::-webkit-scrollbar-thumb{background:rgba(255,107,0,.3)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  nav{padding:1.25rem 1.5rem}
+  .nav-links{display:none}
+  .hero,.featured,.testim,.newsletter,.philosophy{grid-template-columns:1fr;gap:2rem}
+  .hero-right{height:65vw}
+  .hero-left{padding:7rem 1.5rem 2rem}
+  .hero-stats{flex-wrap:wrap;gap:1.5rem}
+  .hstat{border:none;padding:0;margin:0}
+  .pgrid{grid-template-columns:1fr 1fr}
+  .cats-grid{grid-template-columns:1fr 1fr}
+  .ccard.big{grid-row:span 1}
+  .feats-strip{grid-template-columns:1fr 1fr}
+  .ft{border-bottom:1px solid rgba(255,107,0,.08)}
+  footer{grid-template-columns:1fr 1fr;gap:2rem;padding:3rem 1.5rem}
+  .products,.cats,.featured,.newsletter,.testim,.philosophy{padding:4rem 1.5rem}
+  .footer-bottom{padding:1.5rem;flex-direction:column;gap:.5rem}
+  .testim-visual{height:280px}
+}
+@media(max-width:600px){
+  .pgrid{grid-template-columns:1fr}
+  .cats-grid{grid-template-columns:1fr}
+  .feats-strip{grid-template-columns:1fr}
+  .hero-h1{font-size:2.6rem}
+}
+</style>
+</head>
+<body>
+
+<!-- CANVAS BG -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- CURSOR -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <svg class="loader-mandala" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="46" fill="none" stroke="rgba(255,107,0,.3)" stroke-width=".8"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="rgba(255,107,0,.2)" stroke-width=".6"/>
+    <circle cx="50" cy="50" r="28" fill="none" stroke="rgba(255,107,0,.25)" stroke-width=".8"/>
+    <circle cx="50" cy="50" r="16" fill="none" stroke="rgba(255,107,0,.4)" stroke-width="1"/>
+    <g fill="none" stroke="rgba(255,107,0,.35)" stroke-width=".7">
+      <line x1="50" y1="4" x2="50" y2="96"/><line x1="4" y1="50" x2="96" y2="50"/>
+      <line x1="17" y1="17" x2="83" y2="83"/><line x1="83" y1="17" x2="17" y2="83"/>
+    </g>
+    <text x="50" y="56" text-anchor="middle" font-size="14" fill="rgba(255,107,0,.7)" font-family="serif">ॐ</text>
+  </svg>
+  <div class="loader-logo">JOGI BABA</div>
+  <div class="loader-sub">Sacred Soles · Since 2020</div>
+  <div class="loader-bar-wrap"><div class="loader-bar"></div></div>
+</div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="nav-logo">JOGI BABA<span>Sacred Soles · Est. 2020</span></a>
+  <ul class="nav-links">
+    <li><a href="#products">Collection</a></li>
+    <li><a href="#cats">Terrain</a></li>
+    <li><a href="#philosophy">Philosophy</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-cart" onclick="showToast('Cart opened!')">
+    🛒<div class="cart-badge" id="cartBadge">0</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <!-- Decorative mandala bg -->
+  <svg class="mandala-bg" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="350" cy="350" r="340" fill="none" stroke="rgba(255,107,0,1)" stroke-width=".8"/>
+    <circle cx="350" cy="350" r="290" fill="none" stroke="rgba(255,107,0,1)" stroke-width=".6"/>
+    <circle cx="350" cy="350" r="240" fill="none" stroke="rgba(212,160,23,1)" stroke-width=".8"/>
+    <circle cx="350" cy="350" r="190" fill="none" stroke="rgba(255,107,0,1)" stroke-width=".6"/>
+    <circle cx="350" cy="350" r="140" fill="none" stroke="rgba(212,160,23,1)" stroke-width=".8"/>
+    <circle cx="350" cy="350" r="90" fill="none" stroke="rgba(255,107,0,1)" stroke-width="1"/>
+    <circle cx="350" cy="350" r="40" fill="none" stroke="rgba(255,107,0,1)" stroke-width="1.5"/>
+    <!-- Petals -->
+    <g stroke="rgba(255,107,0,.8)" fill="none" stroke-width=".7">
+      <line x1="350" y1="10" x2="350" y2="690"/>
+      <line x1="10" y1="350" x2="690" y2="350"/>
+      <line x1="90" y1="90" x2="610" y2="610"/>
+      <line x1="610" y1="90" x2="90" y2="610"/>
+      <line x1="195" y1="30" x2="505" y2="670"/>
+      <line x1="505" y1="30" x2="195" y2="670"/>
+      <line x1="30" y1="195" x2="670" y2="505"/>
+      <line x1="670" y1="195" x2="30" y2="505"/>
+    </g>
+    <!-- Diamond nodes at intersections -->
+    <g fill="rgba(255,107,0,.6)">
+      <polygon points="350,7 355,12 350,17 345,12"/>
+      <polygon points="350,683 355,688 350,693 345,688"/>
+      <polygon points="7,350 12,345 17,350 12,355"/>
+      <polygon points="683,350 688,345 693,350 688,355"/>
+    </g>
+  </svg>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">Sacred Performance Footwear</div>
+    <h1 class="hero-h1">
+      <span class="jogi">JOGI</span>
+      <span class="baba">BABA</span>
+      <span class="tagline">Where the sacred meets the street</span>
+    </h1>
+    <p class="hero-desc">Every sole is a prayer. Every stride, a devotion. Handcrafted for those who run not away from life — but straight into it.</p>
+    <div class="hero-btns">
+      <a href="#products" class="btn-saffron">Explore Collection</a>
+      <a href="#philosophy" class="btn-outline">Our Story</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hstat"><div class="hstat-num">108</div><div class="hstat-lbl">Styles</div></div>
+      <div class="hstat"><div class="hstat-num">47K</div><div class="hstat-lbl">Disciples</div></div>
+      <div class="hstat"><div class="hstat-num">99%</div><div class="hstat-lbl">Pure Craft</div></div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-glow"></div>
+    <!-- Hero shoe SVG -->
+    <svg class="hero-shoe-stage" viewBox="0 0 600 360" xmlns="http://www.w3.org/2000/svg">
+      <!-- Shadow -->
+      <ellipse cx="265" cy="338" rx="215" ry="14" fill="rgba(0,0,0,0.55)"/>
+      <!-- Thick midsole / outsole with sacred geometry -->
+      <path d="M38 288 Q46 316 122 326 L428 326 Q516 326 538 300 L558 268 Q562 246 526 240 L60 240 Q26 248 38 288Z" fill="#0d0812"/>
+      <!-- Outsole grip pattern -->
+      <rect x="70" y="306" width="18" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="96" y="306" width="18" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="122" y="306" width="18" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="148" y="306" width="18" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="300" y="306" width="24" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="332" y="306" width="24" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="364" y="306" width="24" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <rect x="396" y="306" width="24" height="10" rx="1" fill="#1a0a4a" opacity=".8"/>
+      <!-- Midsole saffron -->
+      <path d="M52 240 L528 240 L538 210 Q544 192 516 186 L84 186 Q54 194 52 240Z" fill="#FF6B00" opacity=".9"/>
+      <!-- Midsole detail line -->
+      <path d="M70 220 L515 220" stroke="rgba(255,248,240,.15)" stroke-width="1" stroke-dasharray="4 4"/>
+      <!-- Upper body cream/warm white -->
+      <path d="M84 186 Q78 146 96 112 L196 72 Q242 54 296 58 L412 64 Q468 70 500 100 L528 140 Q542 166 528 186Z" fill="#FFF3E0"/>
+      <!-- Toe box warm shadow -->
+      <path d="M84 186 Q62 168 68 142 Q74 116 96 112 L176 96 Q88 138 84 186Z" fill="#E8D5B7"/>
+      <!-- Saffron accent swoosh — main identity mark -->
+      <path d="M98 172 Q230 126 510 150 Q538 154 558 142" stroke="#FF6B00" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- Secondary gold accent -->
+      <path d="M104 155 Q236 112 490 136" stroke="#D4A017" stroke-width="2" fill="none" stroke-linecap="round" opacity=".6"/>
+      <!-- Knit/mesh texture on upper -->
+      <line x1="200" y1="72" x2="188" y2="183" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <line x1="234" y1="68" x2="226" y2="183" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <line x1="268" y1="65" x2="264" y2="184" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <line x1="302" y1="64" x2="302" y2="184" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <line x1="336" y1="65" x2="339" y2="184" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <line x1="370" y1="66" x2="376" y2="184" stroke="rgba(180,140,90,.25)" stroke-width="1.2"/>
+      <!-- Horizontal mesh -->
+      <path d="M190 90 Q330 82 472 90" stroke="rgba(180,140,90,.18)" stroke-width="1" fill="none"/>
+      <path d="M188 108 Q330 100 476 108" stroke="rgba(180,140,90,.18)" stroke-width="1" fill="none"/>
+      <path d="M186 126 Q330 118 480 126" stroke="rgba(180,140,90,.18)" stroke-width="1" fill="none"/>
+      <path d="M186 144 Q330 136 482 144" stroke="rgba(180,140,90,.18)" stroke-width="1" fill="none"/>
+      <path d="M186 162 Q330 155 484 162" stroke="rgba(180,140,90,.18)" stroke-width="1" fill="none"/>
+      <!-- Heel counter -->
+      <path d="M448 72 Q508 86 528 138 L528 186 L448 186Z" fill="#EDD9B8"/>
+      <!-- Saffron heel tab -->
+      <rect x="518" y="202" width="20" height="38" rx="3" fill="#FF6B00"/>
+      <!-- OM sacred symbol on heel -->
+      <text x="528" y="228" text-anchor="middle" font-size="16" fill="rgba(13,8,18,.6)" font-family="serif">ॐ</text>
+      <!-- Brand name on side -->
+      <text x="310" y="168" text-anchor="middle" font-size="13" fill="rgba(180,140,90,.6)" font-family="'Cinzel Decorative', serif" letter-spacing="3">JB</text>
+      <!-- Air pod / lotus cushion unit -->
+      <ellipse cx="112" cy="272" rx="32" ry="12" fill="#1a0a4a"/>
+      <ellipse cx="112" cy="272" rx="24" ry="8" fill="#2d1875"/>
+      <!-- Lotus petal detail on pod -->
+      <path d="M98 272 Q112 262 126 272 Q112 282 98 272Z" fill="rgba(255,107,0,.3)"/>
+      <ellipse cx="448" cy="272" rx="44" ry="14" fill="#1a0a4a"/>
+      <ellipse cx="448" cy="272" rx="36" ry="10" fill="#2d1875"/>
+      <path d="M426 272 Q448 259 470 272 Q448 285 426 272Z" fill="rgba(255,107,0,.3)"/>
+      <!-- Highlight on toe -->
+      <path d="M114 124 Q196 90 308 82" stroke="rgba(255,255,255,.4)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      <!-- Small mandala on tongue -->
+      <circle cx="272" cy="108" r="14" fill="none" stroke="rgba(255,107,0,.25)" stroke-width=".8"/>
+      <circle cx="272" cy="108" r="8" fill="none" stroke="rgba(212,160,23,.2)" stroke-width=".8"/>
+      <text x="272" y="113" text-anchor="middle" font-size="9" fill="rgba(255,107,0,.5)" font-family="serif">ॐ</text>
+    </svg>
+    <!-- Floating particles -->
+    <div class="hero-particles" id="heroParticles"></div>
+  </div>
+
+  <div class="scroll-cue"><div class="scroll-line"></div>Scroll</div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="t-item"><span class="om">ॐ</span>Sacred Soles · Free Shipping ₹3999+ <span class="om">ॐ</span> SS25 Drop Live Now <span class="om">ॐ</span> 30-Day Returns <span class="om">ॐ</span> Handcrafted Heritage <span class="om">ॐ</span> 108 Styles</div>
+    <div class="t-item"><span class="om">ॐ</span>Sacred Soles · Free Shipping ₹3999+ <span class="om">ॐ</span> SS25 Drop Live Now <span class="om">ॐ</span> 30-Day Returns <span class="om">ॐ</span> Handcrafted Heritage <span class="om">ॐ</span> 108 Styles</div>
+  </div>
+</div>
+
+<!-- FEATURED -->
+<section class="featured" id="featured">
+  <div class="feat-visual rv">
+    <div class="feat-badge">New Drop ✦</div>
+    <!-- Inner mandala -->
+    <div class="feat-mandala-inner">
+      <svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+        <circle cx="200" cy="200" r="190" fill="none" stroke="#FF6B00" stroke-width="1"/>
+        <circle cx="200" cy="200" r="150" fill="none" stroke="#D4A017" stroke-width=".8"/>
+        <circle cx="200" cy="200" r="110" fill="none" stroke="#FF6B00" stroke-width="1"/>
+        <circle cx="200" cy="200" r="70" fill="none" stroke="#D4A017" stroke-width=".8"/>
+        <g stroke="#FF6B00" fill="none" stroke-width=".8">
+          <line x1="200" y1="10" x2="200" y2="390"/>
+          <line x1="10" y1="200" x2="390" y2="200"/>
+          <line x1="55" y1="55" x2="345" y2="345"/>
+          <line x1="345" y1="55" x2="55" y2="345"/>
+        </g>
+        <text x="200" y="215" text-anchor="middle" font-size="40" fill="#FF6B00" font-family="serif">ॐ</text>
+      </svg>
+    </div>
+    <!-- Featured shoe SVG -->
+    <svg class="feat-shoe" viewBox="0 0 520 300" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="225" cy="283" rx="190" ry="12" fill="rgba(0,0,0,.5)"/>
+      <path d="M32 236 Q40 262 102 272 L364 272 Q454 272 474 248 L494 218 Q498 198 464 192 L56 192 Q28 200 32 236Z" fill="#100b1a"/>
+      <path d="M44 192 L468 192 L478 166 Q484 148 458 142 L70 142 Q42 150 44 192Z" fill="#FF6B00"/>
+      <path d="M58 142 Q53 108 68 80 L154 50 Q192 36 238 40 L342 46 Q398 52 428 80 L458 116 Q470 138 458 142Z" fill="#FFF3E0"/>
+      <path d="M58 142 Q40 127 46 102 Q52 78 68 80 L138 66 Q62 96 58 142Z" fill="#E8D5B7"/>
+      <path d="M72 132 Q196 90 444 112 Q470 116 490 106" stroke="#FF6B00" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <path d="M78 116 Q200 78 432 98" stroke="#D4A017" stroke-width="2" fill="none" stroke-linecap="round" opacity=".7"/>
+      <!-- Mandala on tongue -->
+      <circle cx="248" cy="78" r="16" fill="none" stroke="rgba(255,107,0,.4)" stroke-width=".8"/>
+      <text x="248" y="84" text-anchor="middle" font-size="11" fill="rgba(255,107,0,.7)" font-family="serif">ॐ</text>
+      <!-- Knit lines -->
+      <line x1="168" y1="52" x2="156" y2="140" stroke="rgba(180,140,90,.3)" stroke-width="1.2"/>
+      <line x1="198" y1="48" x2="190" y2="141" stroke="rgba(180,140,90,.3)" stroke-width="1.2"/>
+      <line x1="228" y1="45" x2="224" y2="142" stroke="rgba(180,140,90,.3)" stroke-width="1.2"/>
+      <line x1="258" y1="44" x2="258" y2="142" stroke="rgba(180,140,90,.3)" stroke-width="1.2"/>
+      <line x1="288" y1="45" x2="291" y2="142" stroke="rgba(180,140,90,.3)" stroke-width="1.2"/>
+      <path d="M160 66 Q270 58 416 66" stroke="rgba(180,140,90,.2)" stroke-width="1" fill="none"/>
+      <path d="M158 82 Q270 74 420 82" stroke="rgba(180,140,90,.2)" stroke-width="1" fill="none"/>
+      <path d="M156 98 Q270 90 424 98" stroke="rgba(180,140,90,.2)" stroke-width="1" fill="none"/>
+      <path d="M156 114 Q270 106 426 114" stroke="rgba(180,140,90,.2)" stroke-width="1" fill="none"/>
+      <path d="M156 130 Q270 123 428 130" stroke="rgba(180,140,90,.2)" stroke-width="1" fill="none"/>
+      <!-- Heel -->
+      <path d="M388 52 Q440 64 458 114 L458 142 L388 142Z" fill="#EDD9B8"/>
+      <!-- Saffron heel tab -->
+      <rect x="448" y="158" width="18" height="34" rx="2" fill="#FF6B00"/>
+      <text x="457" y="180" text-anchor="middle" font-size="12" fill="rgba(13,8,18,.7)" font-family="serif">ॐ</text>
+      <!-- Brand text -->
+      <text x="270" y="124" text-anchor="middle" font-size="11" fill="rgba(180,140,90,.5)" font-family="'Cinzel Decorative',serif" letter-spacing="2">JB</text>
+      <!-- Pods -->
+      <ellipse cx="96" cy="222" rx="30" ry="11" fill="#1a0a4a"/>
+      <ellipse cx="96" cy="222" rx="22" ry="7" fill="#2d1875"/>
+      <path d="M80 222 Q96 212 112 222 Q96 232 80 222Z" fill="rgba(255,107,0,.3)"/>
+      <ellipse cx="398" cy="222" rx="42" ry="13" fill="#1a0a4a"/>
+      <ellipse cx="398" cy="222" rx="34" ry="9" fill="#2d1875"/>
+      <path d="M374 222 Q398 209 422 222 Q398 235 374 222Z" fill="rgba(255,107,0,.3)"/>
+      <!-- Highlight -->
+      <path d="M102 96 Q182 66 288 58" stroke="rgba(255,255,255,.45)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+    </svg>
+  </div>
+
+  <div class="feat-info rv d2">
+    <div class="sec-label">New Season Drop</div>
+    <h2 class="feat-name">MOKSHA<br><em>VELOCITY</em><br>108</h2>
+    <p class="feat-sub">The 108 — a sacred number, a revolutionary sole. Carbon-lotus plate technology meets hand-stitched upper. Born on the ghats, built for the streets.</p>
+    <div class="feat-price">
+      <span class="cur-sym">₹</span>16,999
+      <span class="mrp">₹21,500</span>
+      <span class="save">Save 21%</span>
+    </div>
+    <div class="size-wrap">
+      <div class="size-lbl">Select Size (UK)</div>
+      <div class="sizes">
+        <button class="sz">6</button><button class="sz">7</button><button class="sz on">8</button>
+        <button class="sz">9</button><button class="sz">10</button><button class="sz">11</button><button class="sz">12</button>
+      </div>
+    </div>
+    <div class="feat-actions">
+      <button class="btn-add" onclick="addToCart()">Add to Cart</button>
+      <button class="btn-wish">♡</button>
+    </div>
+    <div class="specs-row">
+      <div class="spec"><div class="spec-val">180g</div><div class="spec-key">Weight</div></div>
+      <div class="spec"><div class="spec-val">12mm</div><div class="spec-key">Stack</div></div>
+      <div class="spec"><div class="spec-val">4mm</div><div class="spec-key">Drop</div></div>
+      <div class="spec"><div class="spec-val">108</div><div class="spec-key">Sacred No.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT GRID -->
+<section class="products" id="products">
+  <div class="prod-header rv">
+    <div>
+      <div class="sec-label">The Collection</div>
+      <h2 class="sec-title">SACRED<br>DROPS</h2>
+    </div>
+    <a href="#" class="see-all">All Styles</a>
+  </div>
+  <div class="pgrid">
+
+    <!-- Card 1 -->
+    <div class="pcard rv d1">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#1a0a4a,#0d0812)">
+        <span class="ptag ptag-hot">🔥 Sacred</span>
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#100b1a"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#FF6B00"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#FFF3E0"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#E8D5B7"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#FF6B00" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#D4A017" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(255,107,0,.5)" font-family="serif">ॐ</text>
+          <path d="M420 98 Q450 112 456 128 L414 128Z" fill="#EDD9B8" display="none"/>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#FF6B00"/>
+          <text x="357" y="132" text-anchor="middle" font-size="9" fill="rgba(13,8,18,.7)" font-family="serif">ॐ</text>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#1a0a4a"/>
+          <ellipse cx="82" cy="160" rx="18" ry="6" fill="#2d1875"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#1a0a4a"/>
+          <ellipse cx="316" cy="160" rx="25" ry="7" fill="#2d1875"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.35)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Running</div>
+        <div class="pcard-name">AGNI RUNNER<br>ELITE</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#FF6B00"></div>
+          <div class="sw" style="background:#1a0a4a"></div>
+          <div class="sw" style="background:#FFF3E0"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price">₹9,999</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="pcard rv d2">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#051a1a,#0d0812)">
+        <span class="ptag ptag-new">✦ New</span>
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#051a1a"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#00A896"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#1a1a2e"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#16213e"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#00A896" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#FF6B00" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".6"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(0,168,150,.5)" font-family="serif">ॐ</text>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#00A896"/>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#051a1a"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#051a1a"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.25)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Knit lines -->
+          <line x1="158" y1="30" x2="148" y2="98" stroke="rgba(0,168,150,.25)" stroke-width="1.2"/>
+          <line x1="188" y1="26" x2="181" y2="99" stroke="rgba(0,168,150,.25)" stroke-width="1.2"/>
+          <line x1="218" y1="24" x2="215" y2="100" stroke="rgba(0,168,150,.25)" stroke-width="1.2"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Training</div>
+        <div class="pcard-name">NEEL PULSE<br>PRO X</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#1a1a2e"></div>
+          <div class="sw" style="background:#00A896"></div>
+          <div class="sw" style="background:#FF6B00"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price">₹12,499</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="pcard rv d3">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#1a1200,#0d0812)">
+        <span class="ptag ptag-sale">Save 25%</span>
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#1a1200"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#D4A017"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#f5f0e0"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#ebe0c0"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#D4A017" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#FF6B00" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(212,160,23,.6)" font-family="serif">ॐ</text>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#D4A017"/>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#1a1200"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#1a1200"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Lifestyle</div>
+        <div class="pcard-name">SWARNA<br>STREET LOW</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#f5f0e0"></div>
+          <div class="sw" style="background:#D4A017"></div>
+          <div class="sw" style="background:#4a2800"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price"><span class="oldp">₹9,999</span>₹7,499</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="pcard rv">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#0a1a0a,#0d0812)">
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#0a1a0a"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#2d7a2d"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#0d1a0d"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#0a150a"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#4caf50" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#FF6B00" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".5"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(76,175,80,.5)" font-family="serif">ॐ</text>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#4caf50"/>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#0a1a0a"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#0a1a0a"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.2)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Trail</div>
+        <div class="pcard-name">VANA<br>FORCE GTX</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#0d1a0d"></div>
+          <div class="sw" style="background:#2d7a2d"></div>
+          <div class="sw" style="background:#8b5a00"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price">₹13,999</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 5 -->
+    <div class="pcard rv d1">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#1a001a,#0d0812)">
+        <span class="ptag ptag-new">✦ New</span>
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#1a001a"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#7b2fbe"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#e8e0f5"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#d4c8ea"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#9b59b6" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#FF6B00" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".6"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(155,89,182,.6)" font-family="serif">ॐ</text>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#9b59b6"/>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#1a001a"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#1a001a"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.4)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Lifestyle</div>
+        <div class="pcard-name">AURA<br>CLOUD SUTRA</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#e8e0f5"></div>
+          <div class="sw" style="background:#7b2fbe"></div>
+          <div class="sw" style="background:#1a001a"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price">₹10,999</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 6 -->
+    <div class="pcard rv d2">
+      <div class="pcard-vis" style="background:linear-gradient(135deg,#1a0500,#0d0812)">
+        <span class="ptag ptag-hot">🔥 Sacred</span>
+        <svg class="pcard-shoe" viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="170" cy="208" rx="148" ry="10" fill="rgba(0,0,0,.45)"/>
+          <path d="M28 178 Q36 200 90 208 L290 208 Q356 208 370 185 L386 160 Q389 143 358 138 L42 138 Q20 145 28 178Z" fill="#1a0500"/>
+          <path d="M38 138 L366 138 L374 118 Q378 104 354 100 L56 100 Q30 106 38 138Z" fill="#C0392B"/>
+          <path d="M54 100 Q50 70 64 48 L134 28 Q165 18 200 22 L284 26 Q322 30 342 52 L362 78 Q372 96 362 100Z" fill="#0d0812"/>
+          <path d="M54 100 Q39 87 44 64 Q49 41 64 48 L120 36 Q54 60 54 100Z" fill="#100a18"/>
+          <path d="M64 90 Q168 55 342 72" stroke="#C0392B" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M68 74 Q170 42 336 58" stroke="#FF6B00" stroke-width="1.5" fill="none" stroke-linecap="round" opacity=".7"/>
+          <text x="200" y="68" text-anchor="middle" font-size="10" fill="rgba(192,57,43,.5)" font-family="serif">ॐ</text>
+          <rect x="350" y="116" width="14" height="22" rx="2" fill="#C0392B"/>
+          <ellipse cx="82" cy="160" rx="24" ry="9" fill="#1a0500"/>
+          <ellipse cx="316" cy="160" rx="32" ry="10" fill="#1a0500"/>
+          <path d="M96 102 Q176 72 290 76" stroke="rgba(255,255,255,.15)" stroke-width="3" fill="none" stroke-linecap="round"/>
+          <!-- Star of David / sacred hex detail -->
+          <path d="M200 35 L210 52 L230 52 L220 35Z" fill="rgba(192,57,43,.2)"/>
+          <path d="M200 52 L210 35 L190 35 L200 52Z" fill="rgba(192,57,43,.15)"/>
+        </svg>
+      </div>
+      <div class="pcard-body">
+        <div class="pcard-cat">Basketball</div>
+        <div class="pcard-name">SHAKTI<br>COURT KING</div>
+        <div class="pcard-colors">
+          <div class="sw" style="background:#0d0812"></div>
+          <div class="sw" style="background:#C0392B"></div>
+          <div class="sw" style="background:#FF6B00"></div>
+        </div>
+        <div class="pcard-foot">
+          <div class="pcard-price">₹17,499</div>
+          <button class="pcard-add" onclick="addToCart()">+</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- CATEGORIES -->
+<section class="cats" id="cats">
+  <div class="rv">
+    <div class="sec-label">By Terrain</div>
+    <h2 class="sec-title">FIND YOUR<br>PATH</h2>
+  </div>
+  <div class="cats-grid">
+    <div class="ccard big rv">
+      <div class="ccard-glow"></div>
+      <div class="ccard-art">
+        <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="100" cy="100" r="95" fill="none" stroke="#FF6B00" stroke-width="1"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="#D4A017" stroke-width=".8"/>
+          <circle cx="100" cy="100" r="45" fill="none" stroke="#FF6B00" stroke-width="1"/>
+          <circle cx="100" cy="100" r="20" fill="none" stroke="#D4A017" stroke-width="1.5"/>
+          <g stroke="#FF6B00" fill="none" stroke-width=".8">
+            <line x1="100" y1="5" x2="100" y2="195"/><line x1="5" y1="100" x2="195" y2="100"/>
+            <line x1="33" y1="33" x2="167" y2="167"/><line x1="167" y1="33" x2="33" y2="167"/>
+          </g>
+          <text x="100" y="108" text-anchor="middle" font-size="22" fill="#FF6B00" font-family="serif">ॐ</text>
+        </svg>
+      </div>
+      <span class="ccard-arrow">↗</span>
+      <div class="ccard-label">Running</div>
+      <div class="ccard-count">48 Sacred Styles</div>
+      <div class="ccard-num">01</div>
+    </div>
+    <div class="ccard rv d1">
+      <div class="ccard-glow"></div>
+      <span class="ccard-arrow">↗</span>
+      <div class="ccard-label">Training</div>
+      <div class="ccard-count">56 Styles</div>
+      <div class="ccard-num">02</div>
+    </div>
+    <div class="ccard rv d2">
+      <div class="ccard-glow"></div>
+      <span class="ccard-arrow">↗</span>
+      <div class="ccard-label">Lifestyle</div>
+      <div class="ccard-count">72 Styles</div>
+      <div class="ccard-num">03</div>
+    </div>
+    <div class="ccard rv d1">
+      <div class="ccard-glow"></div>
+      <span class="ccard-arrow">↗</span>
+      <div class="ccard-label">Trail</div>
+      <div class="ccard-count">24 Styles</div>
+      <div class="ccard-num">04</div>
+    </div>
+    <div class="ccard rv d2">
+      <div class="ccard-glow"></div>
+      <span class="ccard-arrow">↗</span>
+      <div class="ccard-label">Court</div>
+      <div class="ccard-count">32 Styles</div>
+      <div class="ccard-num">05</div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES STRIP -->
+<div class="feats-strip rv">
+  <div class="ft"><div class="ft-icon">⚡</div><div class="ft-title">Lotus Plate</div><div class="ft-sub">Carbon-fibre inspired by the sacred lotus form</div></div>
+  <div class="ft"><div class="ft-icon">🌿</div><div class="ft-title">Ayurvedic Foam</div><div class="ft-sub">Cushioning infused with natural compounds</div></div>
+  <div class="ft"><div class="ft-icon">🔯</div><div class="ft-title">Sacred Geometry</div><div class="ft-sub">Every design rooted in ancient patterns</div></div>
+  <div class="ft"><div class="ft-icon">♻</div><div class="ft-title">Earth Kind</div><div class="ft-sub">40% recycled, 100% conscious craft</div></div>
+</div>
+
+<!-- PHILOSOPHY -->
+<section class="philosophy" id="philosophy">
+  <div class="phil-visual rv">
+    <div class="phil-mandala-wrap">
+      <div class="phil-mandala-inner">
+        <div class="phil-center">ॐ</div>
+      </div>
+    </div>
+    <!-- Floating dots on mandala -->
+    <svg class="phil-dots" viewBox="0 0 420 420" xmlns="http://www.w3.org/2000/svg" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.25">
+      <g fill="#FF6B00">
+        <circle cx="210" cy="3" r="3"/><circle cx="210" cy="417" r="3"/>
+        <circle cx="3" cy="210" r="3"/><circle cx="417" cy="210" r="3"/>
+        <circle cx="62" cy="62" r="2.5"/><circle cx="358" cy="358" r="2.5"/>
+        <circle cx="358" cy="62" r="2.5"/><circle cx="62" cy="358" r="2.5"/>
+      </g>
+      <g fill="#D4A017">
+        <circle cx="210" cy="60" r="2"/><circle cx="210" cy="360" r="2"/>
+        <circle cx="60" cy="210" r="2"/><circle cx="360" cy="210" r="2"/>
+      </g>
+    </svg>
+  </div>
+
+  <div class="phil-text rv d2">
+    <div class="sec-label">Our Philosophy</div>
+    <h2 class="sec-title">THE SACRED<br>SOLE</h2>
+    <blockquote class="phil-quote">"The path to mastery begins beneath your feet. We build shoes worthy of that journey."</blockquote>
+    <p class="phil-body">Jogi Baba was born at the intersection of devotion and performance. Inspired by the Indian yogi — who moves with intent, breathes with purpose, and never stops — we craft footwear that honours the body as a temple and the ground as sacred.</p>
+    <p class="phil-body">Every stitch carries intention. Every sole, a story. From the ghats of Varanasi to the streets of Mumbai, Jogi Baba moves with you.</p>
+    <a href="#" class="btn-saffron" style="display:inline-block;margin-top:1rem;text-decoration:none">Read Our Story</a>
+  </div>
+</section>
+
+<!-- TESTIMONIAL -->
+<section class="testim">
+  <div class="rv">
+    <div class="testim-om">ॐ</div>
+    <div class="testim-stars">★★★★★</div>
+    <blockquote class="testim-quote">"Wearing Jogi Baba feels like a ritual. My feet feel grounded, my stride feels divine. I've never felt this connected to my running."</blockquote>
+    <div class="testim-author">
+      <strong>Priya Nambiar</strong>
+      <span>Ultramarathon Runner · Bengaluru · UTMB 2024</span>
+    </div>
+  </div>
+  <div class="testim-visual rv d2">
+    <div class="tv-block tall">
+      <svg viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+        <text x="100" y="280" text-anchor="middle" font-size="200" fill="rgba(255,107,0,.06)" font-family="'Cinzel Decorative',serif">J</text>
+        <circle cx="100" cy="120" r="45" fill="#1a0a4a"/>
+        <circle cx="100" cy="120" r="32" fill="#2d1875" opacity=".5"/>
+        <text x="100" y="132" text-anchor="middle" font-size="26" fill="#FF6B00" font-family="serif">ॐ</text>
+        <!-- Stylized runner legs -->
+        <path d="M85 165 Q72 220 52 285" stroke="#1a0a4a" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <path d="M115 165 Q128 220 148 280" stroke="#1a0a4a" stroke-width="18" fill="none" stroke-linecap="round"/>
+        <!-- Shoes -->
+        <path d="M36 278 Q18 292 14 304 L78 304 Q92 304 94 292 L54 286Z" fill="#FF6B00"/>
+        <path d="M148 274 Q166 288 168 300 L104 300 Q90 300 88 288 L132 282Z" fill="#FF6B00"/>
+        <!-- Body -->
+        <ellipse cx="100" cy="155" rx="22" ry="32" fill="#1a0a4a"/>
+        <!-- Arms -->
+        <path d="M78 150 Q48 170 38 200" stroke="#1a0a4a" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <path d="M122 144 Q152 164 162 192" stroke="#1a0a4a" stroke-width="14" fill="none" stroke-linecap="round"/>
+        <!-- Sacred lines -->
+        <path d="M20 340 Q100 310 180 340" stroke="rgba(255,107,0,.15)" stroke-width="1" fill="none"/>
+      </svg>
+    </div>
+    <div class="tv-block">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" width="100%">
+        <circle cx="100" cy="100" r="90" fill="none" stroke="rgba(255,107,0,.2)" stroke-width="1"/>
+        <circle cx="100" cy="100" r="65" fill="none" stroke="rgba(212,160,23,.15)" stroke-width=".8"/>
+        <circle cx="100" cy="100" r="40" fill="none" stroke="rgba(255,107,0,.2)" stroke-width="1"/>
+        <g stroke="rgba(255,107,0,.2)" fill="none" stroke-width=".8">
+          <line x1="100" y1="10" x2="100" y2="190"/><line x1="10" y1="100" x2="190" y2="100"/>
+          <line x1="36" y1="36" x2="164" y2="164"/><line x1="164" y1="36" x2="36" y2="164"/>
+        </g>
+        <text x="100" y="108" text-anchor="middle" font-size="30" fill="rgba(255,107,0,.4)" font-family="serif">ॐ</text>
+      </svg>
+    </div>
+    <div class="tv-block">
+      <div style="font-family:'Cinzel Decorative',serif;font-size:3rem;color:rgba(255,107,0,.2);line-height:1;">5.0</div>
+      <div style="font-family:'Teko',sans-serif;font-size:.65rem;letter-spacing:.25em;text-transform:uppercase;color:rgba(255,248,240,.2);margin-top:.25rem">Rating</div>
+    </div>
+  </div>
+</section>
+
+<!-- NEWSLETTER -->
+<section class="newsletter" id="contact">
+  <div class="rv">
+    <div class="sec-label">Join the Sangha</div>
+    <h2 class="sec-title">WALK WITH<br>US</h2>
+    <p style="color:rgba(255,248,240,.4);font-size:1rem;line-height:1.75;margin-top:1rem;max-width:380px">Be the first to receive sacred drops, stories of the road, and an exclusive 15% off your initiation order.</p>
+  </div>
+  <div class="rv d2">
+    <div class="nl-form">
+      <input type="email" class="nl-input" placeholder="your@email.com">
+      <button class="nl-btn" onclick="showToast('Welcome to the Sangha 🙏')">Join Now</button>
+    </div>
+    <div class="nl-perks">
+      <div class="perk">15% off first order for new disciples</div>
+      <div class="perk">Early access to sacred drops</div>
+      <div class="perk">Stories from the road, monthly</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <span class="footer-logo">JOGI <span>BABA</span></span>
+    <div class="footer-tagline">Sacred Soles · Est. 2020</div>
+    <p class="footer-about">Where ancient wisdom meets modern performance. Every shoe is a prayer. Every run, a pilgrimage. Crafted in India, worn across the world.</p>
+  </div>
+  <div class="footer-col">
+    <div class="footer-col-title">Collection</div>
+    <ul>
+      <li><a href="#">New Drops</a></li>
+      <li><a href="#">Running</a></li>
+      <li><a href="#">Training</a></li>
+      <li><a href="#">Lifestyle</a></li>
+      <li><a href="#">Sale</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <div class="footer-col-title">Support</div>
+    <ul>
+      <li><a href="#">Size Guide</a></li>
+      <li><a href="#">Returns</a></li>
+      <li><a href="#">Shipping</a></li>
+      <li><a href="#">FAQ</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </div>
+  <div class="footer-col">
+    <div class="footer-col-title">Ashram</div>
+    <ul>
+      <li><a href="#">Our Story</a></li>
+      <li><a href="#">Philosophy</a></li>
+      <li><a href="#">Sustainability</a></li>
+      <li><a href="#">Careers</a></li>
+      <li><a href="#">Press</a></li>
+    </ul>
+  </div>
+</footer>
+<div class="footer-bottom">
+  <p>© 2025 Jogi Baba Performance Footwear · Made with devotion in India</p>
+  <div class="footer-om">ॐ ॐ ॐ</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast">Item added ✦</div>
+
+<script>
+/* ── LOADER ── */
+let cartCount = 0;
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader').classList.add('gone');
+  }, 2600);
+});
+
+/* ── CURSOR ── */
+const cur = document.getElementById('cur');
+const ring = document.getElementById('curRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => {
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function animRing() {
+  rx += (mx-rx)*0.1; ry += (my-ry)*0.1;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animRing);
+})();
+document.querySelectorAll('a,button,.pcard,.ccard,.sz,.sw,.feat-visual').forEach(el => {
+  el.addEventListener('mouseenter', () => cur.classList.add('big'));
+  el.addEventListener('mouseleave', () => cur.classList.remove('big'));
+});
+
+/* ── NAV SCROLL ── */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+});
+
+/* ── BACKGROUND CANVAS – floating particles + mandala lines ── */
+const canvas = document.getElementById('bgCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+window.addEventListener('resize', () => { canvas.width=window.innerWidth; canvas.height=window.innerHeight; });
+
+const particles = Array.from({length:60}, () => ({
+  x: Math.random()*window.innerWidth,
+  y: Math.random()*window.innerHeight,
+  r: Math.random()*1.8+0.4,
+  vx: (Math.random()-.5)*.3,
+  vy: (Math.random()-.5)*.3,
+  alpha: Math.random()*.5+.1,
+  type: Math.random() > .7 ? 'om' : 'dot',
+  size: Math.random()*12+8
+}));
+
+function drawCanvas() {
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if(p.x<0) p.x=canvas.width; if(p.x>canvas.width) p.x=0;
+    if(p.y<0) p.y=canvas.height; if(p.y>canvas.height) p.y=0;
+    if(p.type === 'om') {
+      ctx.save();
+      ctx.globalAlpha = p.alpha * .4;
+      ctx.fillStyle = '#FF6B00';
+      ctx.font = `${p.size}px serif`;
+      ctx.textAlign = 'center';
+      ctx.fillText('ॐ', p.x, p.y);
+      ctx.restore();
+    } else {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(255,107,0,${p.alpha})`;
+      ctx.fill();
+    }
+  });
+  // Thin connection lines
+  particles.forEach((a,i) => {
+    particles.slice(i+1).forEach(b => {
+      const d = Math.hypot(a.x-b.x, a.y-b.y);
+      if(d < 120) {
+        ctx.beginPath();
+        ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y);
+        ctx.strokeStyle = `rgba(255,107,0,${.08*(1-d/120)})`;
+        ctx.lineWidth = .5;
+        ctx.stroke();
+      }
+    });
+  });
+  requestAnimationFrame(drawCanvas);
+}
+drawCanvas();
+
+/* ── HERO FLOATING SPARKS ── */
+const sparks = document.getElementById('heroParticles');
+for(let i=0;i<18;i++) {
+  const s = document.createElement('div');
+  const isOm = Math.random() > .6;
+  s.style.cssText = `
+    position:absolute;
+    left:${Math.random()*100}%;top:${Math.random()*100}%;
+    color:rgba(255,107,0,${Math.random()*.35+.05});
+    font-size:${isOm ? (Math.random()*14+8)+'px' : (Math.random()*4+2)+'px'};
+    font-family:serif;
+    animation:floatSpark ${Math.random()*6+5}s ease-in-out ${Math.random()*5}s infinite alternate;
+    pointer-events:none;user-select:none;
+  `;
+  s.textContent = isOm ? 'ॐ' : '✦';
+  sparks.appendChild(s);
+}
+const sparkStyle = document.createElement('style');
+sparkStyle.textContent = `@keyframes floatSpark{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(-25px) rotate(15deg)}}`;
+document.head.appendChild(sparkStyle);
+
+/* ── SCROLL REVEAL ── */
+const reveals = document.querySelectorAll('.rv');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('vis'); io.unobserve(e.target);} });
+}, {threshold:.1});
+reveals.forEach(el => io.observe(el));
+
+/* ── SIZE SELECTOR ── */
+document.querySelectorAll('.sz').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.closest('.sizes').querySelectorAll('.sz').forEach(b=>b.classList.remove('on'));
+    btn.classList.add('on');
+  });
+});
+
+/* ── CART ── */
+function addToCart() {
+  cartCount++;
+  document.getElementById('cartBadge').textContent = cartCount;
+  showToast('Added to cart ✦');
+}
+
+/* ── TOAST ── */
+function showToast(msg='Added to cart ✦') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.opacity='1'; t.style.transform='translateY(0)';
+  setTimeout(() => { t.style.opacity='0'; t.style.transform='translateY(20px)'; }, 2800);
+}
+
+/* ── SWATCH HOVER – tint card bg ── */
+document.querySelectorAll('.sw').forEach(sw => {
+  sw.addEventListener('click', () => {
+    const card = sw.closest('.pcard');
+    if(card){
+      const vis = card.querySelector('.pcard-vis');
+      const col = sw.style.background;
+      vis.style.background = col+'22';
+    }
+  });
+});
+
+/* ── PARALLAX – subtle hero ── */
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  const heroLeft = document.querySelector('.hero-left');
+  if(heroLeft && s < window.innerHeight) {
+    heroLeft.style.transform = `translateY(${s*.12}px)`;
+  }
+});
+</script>
+</body>
+</html>
